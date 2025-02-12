@@ -1,9 +1,13 @@
 const express = require('express');
 const fs = require('fs');
 
-const FILE_SYNC_RECORD_PATH = 'wikifiles/pages.json'
-const WIKI_FILES_ROOT_DIRECTORY = 'wikifiles/pages'
+// Config defaults
+let PORT = '3000'
+let WIKI_FILES_DIRECTORY = 'wikifiles'
+let FILE_SYNC_RECORD_NAME = 'pages.json'
+let WIKI_PUBLISHED_PAGE_FOLDER = 'pages'
 
+// Loads server configuration file
 let config = {}
 if (fs.existsSync('config.json')) {
     fs.readFile('config.json', 'utf8', (err, data) => {
@@ -23,150 +27,185 @@ if (fs.existsSync('config.json')) {
     console.log('Could not find file \'config.json\'. Restore this file and restart the server.')
 }
 
-if (!fs.existsSync('wikifiles')) {
-    fs.mkdirSync('wikifiles')
-}
-if (!fs.existsSync('wikifiles/pages')) {
-    fs.mkdirSync('wikifiles/pages')
-}
-if (!fs.existsSync(FILE_SYNC_RECORD_PATH)) {
-    fs.writeFileSync(FILE_SYNC_RECORD_PATH, '{}')
+if (config.secret === undefined) {
+    console.log('Server secret must be specified in \'config.json\'. Restore this file and restart the server.')
 }
 
+// Load config settings
+const loadConfig = (config, defaultValue) => config === undefined ? defaultValue : config
+PORT = loadConfig(config.port, PORT)
+WIKI_FILES_DIRECTORY = loadConfig(config.wikiFilesDirectory, WIKI_FILES_DIRECTORY)
+FILE_SYNC_RECORD_NAME = loadConfig(config.fileSyncRecordName, FILE_SYNC_RECORD_NAME)
+WIKI_PUBLISHED_PAGE_FOLDER = loadConfig(config.wikiPublishedPageDirectory, WIKI_PUBLISHED_PAGE_FOLDER)
+const FILE_SYNC_RECORD_PATH = `${WIKI_FILES_DIRECTORY}/${FILE_SYNC_RECORD_NAME}`
+const WIKI_PUBLISHED_PAGE_PATH = `${WIKI_FILES_DIRECTORY}/${WIKI_PUBLISHED_PAGE_FOLDER}`
 
+// Initializes necessary directories and files
+const ensureDirectory = (path) => { if (!fs.existsSync(path)) fs.mkdirSync(path) }
+const ensureFile = (path, defaultContents) => { if (!fs.existsSync(path)) fs.writeFileSync(path, defaultContents) }
+ensureDirectory(WIKI_FILES_DIRECTORY)
+ensureDirectory(WIKI_PUBLISHED_PAGE_PATH)
+ensureFile(FILE_SYNC_RECORD_PATH, '{}')
+
+
+// Initialize express app
 const app = express();
 app.use(express.json())
-const port = 3000;
+const port = parseInt(PORT);
 
-app.get('/', (req, res) => {
-  res.send('Hello World!');
-});
+// Make sure server and client secret match
+const verifySecret = (requestSecret) => requestSecret === config.secret
+// Returns file sync record as JSON object
+const loadFileSyncJSON = () => JSON.parse(fs.readFileSync(FILE_SYNC_RECORD_PATH))
+// Returns true if an entry in the file sync record matches the request content
+const checkSyncStatus = (reqContent, fileSyncInfo) => ((reqContent, record) => (record !== undefined && record.path === reqContent.path && record.lastModified === reqContent.lastModified))(reqContent, fileSyncInfo[reqContent.name])
 
+const removePublishedFile = (removeFilePath) => {
+    if (fs.existsSync(`${WIKI_PUBLISHED_PAGE_PATH}/${removeFilePath}`)) {
+        fs.rmSync(`${WIKI_PUBLISHED_PAGE_PATH}/${removeFilePath}`)
+    }
+    const pathDirs = removeFilePath.split('/')
+    for (let i = 0; i < pathDirs.length - 1; i++) {
+        const dirPath = `${WIKI_PUBLISHED_PAGE_PATH}/${pathDirs.slice(0, pathDirs.length - 1 - i).join('/')}`
+        if (fs.existsSync(dirPath) && fs.lstatSync(dirPath).isDirectory() && fs.readdirSync(dirPath).length === 0) {
+            console.log(`Removing directory at path ${dirPath}`)
+            fs.rmdirSync(dirPath)
+        }
+    }
+}
+
+// Endpoint to test server connection
 app.post('/test-connection', (req, res) => {
     const json = req.body
-    if (json.secret === config.secret) {
-        res.status(200).send()
-    } else {
-        res.status(202).send('Unauthorized')
-    }
-    
+    if (verifySecret(json.secret)) res.status(200).send()
+    else res.status(202).send('Unauthorized')
 })
 
+// Returns a true or false sync status based on whether or not
+// client file status matches an entry in the server sync record
 app.post('/get-file-sync-status', (req, res) => {
+    // Verify secret
     const json = req.body
-    if (json.secret !== config.secret) {
+    if (!verifySecret(json.secret)) {
         res.status(202).send('Unauthorized')
+        return
     }
 
+    // Verify request body is valid
     const reqContent = json.content
-    let fileSyncRecord = JSON.parse(fs.readFileSync(FILE_SYNC_RECORD_PATH))
-
     if (reqContent.name === undefined || reqContent.path === undefined || reqContent.lastModified === undefined) {
         res.status(202).send('Invalid body')
     }
 
-    if (fileSyncRecord[reqContent.name] !== undefined && fileSyncRecord[reqContent.name].path === reqContent.path && fileSyncRecord[reqContent.name].lastModified === reqContent.lastModified) {
-        res.status(200).json({
-            'syncStatus' : true
-        }).send()
-        return
-    } else {
-        res.status(200).json({
-            'syncStatus' : false
-        }).send()
-        return
-    }
+    // If request data matches server file data, response with a true status, otherwise, respond with a false status
+    let fileSyncRecord = loadFileSyncJSON()
+    let syncStatus = checkSyncStatus(reqContent, fileSyncRecord)
+    res.status(200).json({ 'syncStatus' : syncStatus }).send()
 })
 
+// Removes the requested file from the server
 app.post('/remove-published-file', (req, res) => {
+    // Verify secret
     const json = req.body
-    if (json.secret !== config.secret) {
+    if (!verifySecret(json.secret)) {
         res.status(202).send('Unauthorized')
+        return
     }
 
+    // Verify request body is valid
     const reqContent = json.content
-    let fileSyncRecord = JSON.parse(fs.readFileSync(FILE_SYNC_RECORD_PATH))
-
     if (reqContent.name === undefined) {
         res.status(202).send('Invalid body')
     }
 
-    if (fileSyncRecord[reqContent.name] === undefined) {
-        res.status(200).json({
-            'removeStatus' : true
-        }).send()
+    // If the file staged for deletion is already not on 
+    // the server, respond with a postive status
+    let fileSyncRecord = loadFileSyncJSON()
+    const recordEntry = fileSyncRecord[reqContent.name]
+    if (recordEntry === undefined) {
+        res.status(200).json({ 'removeStatus' : true }).send()
         return
-    } else {
-        console.log(`Removing page at path ${fileSyncRecord[reqContent.name].path}`)
-        if (fs.existsSync(`${WIKI_FILES_ROOT_DIRECTORY}/${fileSyncRecord[reqContent.name].path}`)) {
-            fs.rmSync(`${WIKI_FILES_ROOT_DIRECTORY}/${fileSyncRecord[reqContent.name].path}`)
-        }
-        fileSyncRecord[reqContent.name] = undefined
-        fs.writeFileSync(FILE_SYNC_RECORD_PATH, JSON.stringify(fileSyncRecord))
     }
 
-
-
-    if (fileSyncRecord[reqContent.name] !== undefined && fileSyncRecord[reqContent.name].path === reqContent.path && fileSyncRecord[reqContent.name].lastModified === reqContent.lastModified) {
-        res.status(200).json({
-            'syncStatus' : true
-        }).send()
-        console.log('Sending \'true\' sync status')
-    } else {
-        res.status(200).json({
-            'syncStatus' : false
-        }).send()
-        console.log('Sending \'false\' sync status')
-    }
+    
+    // Remove the requested file, along with any empty parent directories, and its record in the sync record
+    const removeFilePath = recordEntry.path 
+    console.log(`Removing page at path ${removeFilePath}`)
+    removePublishedFile(removeFilePath)
+    fileSyncRecord[reqContent.name] = undefined
+    fs.writeFileSync(FILE_SYNC_RECORD_PATH, JSON.stringify(fileSyncRecord))
+    res.status(200).json({ 'removeStatus' : true }).send()
 })
 
+// Syncs the contents, location, and information about a server file
 app.post('/sync-published-file', (req, res) => {
+    // Verify secret
     const json = req.body
-    if (json.secret !== config.secret) {
+    if (!verifySecret(json.secret)) {
         res.status(202).send('Unauthorized')
+        return
     }
 
+    // Verify request body is valid
     const reqContent = json.content
-    let fileSyncRecord = JSON.parse(fs.readFileSync(FILE_SYNC_RECORD_PATH))
-
     if (reqContent.name === undefined || reqContent.path === undefined || reqContent.lastModified === undefined || reqContent.markdown === undefined) {
         res.status(202).send('Invalid body')
+        return
     }
 
-    if (fileSyncRecord[reqContent.name] !== undefined) {
-        console.log(`Removing page at path ${fileSyncRecord[reqContent.name].path}`)
-        if (fs.existsSync(`${WIKI_FILES_ROOT_DIRECTORY}/${fileSyncRecord[reqContent.name].path}`)) {
-            fs.rmSync(`${WIKI_FILES_ROOT_DIRECTORY}/${fileSyncRecord[reqContent.name].path}`)
-        }
-        fileSyncRecord[reqContent.name] = undefined
+    // Remove any previously published version of the file, along
+    // with its record (in case the fild has moved)
+    let fileSyncRecord = loadFileSyncJSON()
+    const recordEntry = fileSyncRecord[reqContent.name]
+    if (recordEntry !== undefined) removePublishedFile(recordEntry.path)
 
-    }
-
+    // Ensure that the required directory path to the uploaded file 
+    // exists, and  then write the file contents to the desired path
     const path = reqContent.path.split('/')
-    let buildPath = `${WIKI_FILES_ROOT_DIRECTORY}/`
+    // Failsafe to ensure website config files do not get published on accident
+    if (path[0] === 'wikimaker-website-config') {
+        res.status(202).json({ configFileFailsafe : true }).send()
+        return
+    }
+    let buildPath = `${WIKI_PUBLISHED_PAGE_PATH}/`
     path.forEach((element, index) => {
         buildPath += element
         if (index === path.length - 1) {
+            // Write the markdown contents to the final file location
             fs.writeFileSync(buildPath, reqContent.markdown)
         } else {
-            if (!fs.existsSync(buildPath)) {
-                fs.mkdirSync(buildPath)
-            }
+            // For each directory the file is a child of, ensure the directory exists
+            if (!fs.existsSync(buildPath)) fs.mkdirSync(buildPath)
             buildPath += '/'
         }
     });
 
-    res.status(200).json({
-        syncStatus : true
-    }).send()
-    
+    // Update the sync file record to reflect the information of the updated file
     fileSyncRecord[reqContent.name] = {
         "path" : reqContent.path,
         "lastModified" : reqContent.lastModified
     }
     fs.writeFileSync(FILE_SYNC_RECORD_PATH, JSON.stringify(fileSyncRecord))
+    // Send a positive response
+    res.status(200).json({ syncStatus : true }).send()
 })
 
-app.listen(port, () => {
-  console.log(`Server listening on port ${port}`);
-});
+app.post('/reset-published-pages', (req, res) => {
+
+    // Verify secret
+    const json = req.body
+    if (!verifySecret(json.secret)) {
+        res.status(202).send('Unauthorized')
+        return
+    }
+
+    // Clear all published files, and reset file sync record
+    fs.rmSync(WIKI_PUBLISHED_PAGE_PATH, {recursive : true})
+    fs.mkdirSync(WIKI_PUBLISHED_PAGE_PATH)
+    fs.writeFileSync(FILE_SYNC_RECORD_PATH, '{}')
+
+    res.status(200).send()
+})
+
+// Set express app to listen on the designated port
+app.listen(port, () => { console.log(`Server listening on port ${port}`) });

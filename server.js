@@ -1,5 +1,6 @@
 const express = require('express');
 const fs = require('fs');
+const cors = require('cors');
 
 // Config defaults
 let PORT = '3000'
@@ -10,19 +11,14 @@ let WIKI_PUBLISHED_PAGE_FOLDER = 'pages'
 // Loads server configuration file
 let config = {}
 if (fs.existsSync('config.json')) {
-    fs.readFile('config.json', 'utf8', (err, data) => {
-        if (err) {
-            console.log('Unable to open \'config.json\'. Restore this file and restart the server.')
-            return;
-        }
-        try {
-            config = JSON.parse(data);
-            console.log("Server configuration loaded:")
-            console.log(config)
-          } catch (parseError) {
-            console.log('Could not parse \'config.json\'. Restore this file and restart the server.');
-          }
-    })
+    const configData = fs.readFileSync('config.json')
+    try {
+        config = JSON.parse(configData);
+        console.log("Server configuration loaded:")
+        console.log(config)
+    } catch (parseError) {
+        console.log('Could not parse \'config.json\'. Restore this file and restart the server.');
+    }
 } else {
     console.log('Could not find file \'config.json\'. Restore this file and restart the server.')
 }
@@ -51,6 +47,7 @@ ensureFile(FILE_SYNC_RECORD_PATH, '{}')
 // Initialize express app
 const app = express();
 app.use(express.json())
+app.use(cors());
 const port = parseInt(PORT);
 
 // Make sure server and client secret match
@@ -127,7 +124,6 @@ app.post('/remove-published-file', (req, res) => {
         return
     }
 
-    
     // Remove the requested file, along with any empty parent directories, and its record in the sync record
     const removeFilePath = recordEntry.path 
     console.log(`Removing page at path ${removeFilePath}`)
@@ -191,7 +187,6 @@ app.post('/sync-published-file', (req, res) => {
 })
 
 app.post('/reset-published-pages', (req, res) => {
-
     // Verify secret
     const json = req.body
     if (!verifySecret(json.secret)) {
@@ -205,6 +200,39 @@ app.post('/reset-published-pages', (req, res) => {
     fs.writeFileSync(FILE_SYNC_RECORD_PATH, '{}')
 
     res.status(200).send()
+})
+
+app.post('/retrieve-article', (req, res) => {
+
+    // Verify request body is valid
+    const reqContent = req.body
+    if (reqContent.path === undefined) {
+        res.status(202).send('Invalid body')
+        return
+    }
+    const fileExists = fs.existsSync(`${WIKI_PUBLISHED_PAGE_PATH}/${reqContent.path}`)
+    if (fileExists) {
+        res.status(200).sendFile(`${__dirname}/${WIKI_PUBLISHED_PAGE_PATH}/${reqContent.path}`)
+    } else {
+        res.status(202).send('File does not exist')
+    }
+})
+
+app.post('/locate', (req, res) => {
+    // Verify request body is valid
+    const reqContent = req.body
+    if (reqContent.name === undefined) {
+        res.status(202).send('Invalid body')
+        return
+    }
+
+    const json = loadFileSyncJSON()
+    if (json[reqContent.name]) {
+        res.status(200).json({ path : json[reqContent.name].path }).send()
+    } else {
+        res.status(202).send('File does not exist')
+    }
+
 })
 
 // Set express app to listen on the designated port

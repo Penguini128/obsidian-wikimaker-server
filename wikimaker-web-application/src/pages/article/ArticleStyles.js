@@ -90,15 +90,9 @@ const articleStyles = {
             paddingLeft : '2rem',
             margin : '0.25rem 0rem'
         },
-        '.unordered-list .unordered-list' : {
-            paddingLeft : '0.5rem'
-        },
         '.ordered-list' : {
             paddingLeft : '2rem',
             margin : '0.25rem 0rem'
-        },
-        '.ordered-list .ordered-list' : {
-            paddingLeft : '0.5rem'
         },
         '.list-item::marker' : {
             color: '#666666'

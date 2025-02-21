@@ -6,7 +6,7 @@ const articleStyles = {
             fontSize : '16px',
             boxSizing : 'border-box',
             padding : '2rem',
-            maxWidth : '45rem'
+            maxWidth : '48rem'
         },
         '.title' : {
             fontSize : '1.9rem',

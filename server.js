@@ -72,6 +72,11 @@ const removePublishedFile = (removeFilePath) => {
 }
 
 // Endpoint to test server connection
+app.get('/test-connection', (req, res) => {
+    res.status(202).send('Server running')
+})
+
+// Endpoint to test server connection
 app.post('/test-connection', (req, res) => {
     const json = req.body
     if (verifySecret(json.secret)) res.status(200).send()

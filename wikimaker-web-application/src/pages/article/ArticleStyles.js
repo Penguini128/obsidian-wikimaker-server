@@ -102,6 +102,7 @@ const articleStyles = {
             backgroundColor : '#242424',
             borderRadius : '4px',
             padding : '0.1rem 0.25rem',
+            margin : '0.3rem 0rem',
             fontWeight : 500
         },
         '.code-block' : {

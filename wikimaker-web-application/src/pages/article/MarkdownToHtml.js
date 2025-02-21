@@ -301,7 +301,7 @@ function inlineObject(stringConsumer) {
         bold : /__|\*\*/,
         strikethrough : /~~/,
         code : /`/,
-        hyperlink : /\[.*?]\(.+?\)/,
+        hyperlink : /\[[^\[]*?]\(.+?\)/,
         wikilink : /\[\[.+?]]/,
         image : /!\[.*?]\(.+?\)/,
         otherText : /([^*_\n`!~\[]|\\[*_`\[]|~(?!~)|!(?!\[)|\[(?!\[).*](?!\())+/,

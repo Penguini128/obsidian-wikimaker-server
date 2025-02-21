@@ -133,7 +133,6 @@ function newlineObject(stringConsumer) {
         return returnObject
 
     stringConsumer.startOfLine = false;
-    let orderedListNumber = -1
 
     let objectType = 'p'
     let matchLength;
@@ -195,7 +194,7 @@ function newlineObject(stringConsumer) {
     } else if (objectType === 'ul') {
         objectChildren = [unorderedList(stringConsumer, matchLength - 2)]
     } else if (objectType === 'ol') {
-        objectChildren = [orderedList(stringConsumer, matchLength - 2 - orderedListNumber.length, orderedListNumber)]
+        objectChildren = [orderedList(stringConsumer, matchLength - 2 - returnObject.start.length, returnObject.start)]
     } else if (objectType === 'table') {
         objectChildren = table(stringConsumer, returnObject.tableContents)
     }else if (objectType === 'codeBlock') {

@@ -98,7 +98,7 @@ const articleStyles = {
             color: '#666666'
         },
         '.inline-code' : {
-            display : 'inline-block',
+            display : 'inline',
             fontSize : '90%',
             backgroundColor : '#242424',
             borderRadius : '4px',

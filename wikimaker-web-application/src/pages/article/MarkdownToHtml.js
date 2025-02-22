@@ -87,7 +87,7 @@ function objectsToHtml(parseObjects) {
         case 'image' :
             return <img className={'image'} alt={parseObjects.content.text} src={parseObjects.content.url}/>
         case 'wikilink' :
-            return <a className={'wikilink'} href={`/locate?article=${parseObjects.content.url}`}>{parseObjects.content.text}</a>
+            return <a className={'wikilink'} href={`/locate/${parseObjects.content.url}`}>{parseObjects.content.text}</a>
         default :
             return null
     }

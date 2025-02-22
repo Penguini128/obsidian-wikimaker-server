@@ -36,7 +36,7 @@ export default function App() {
         <Routes>
             <Route key='home' path="/" element={<Home/>}/>
             <Route key='page-not-found' path="/page-not-found" element={<PageNotFound/>}/>
-            <Route key='search' path='/locate' element={<Locate/>}/>
+            <Route key='search' path='/locate/:name' element={<Locate/>}/>
             <Route key='article' path='/article/*' element={<Article/>}/>
             <Route path="*" element={<Navigate to="/page-not-found" replace={true}/>}/>
         </Routes>

@@ -157,7 +157,7 @@ function newlineObject(stringConsumer) {
     } else if ((matchLength = firstRegexMatch(stringConsumer, />[\t ]*/)) > 0) {
         consumeMatch(stringConsumer, matchLength)
         objectType = 'blockquote'
-    } else if ((matchLength = firstRegexMatch(stringConsumer, /(---+|\*\*\*+|___+)\s*\n/)) > 0) {
+    } else if ((matchLength = firstRegexMatch(stringConsumer, /(---+|\*\*\*+|___+)[\t ]*\n/)) > 0) {
         consumeMatch(stringConsumer, matchLength)
         stringConsumer.startOfLine = true;
         objectType = 'horizontalBreak'

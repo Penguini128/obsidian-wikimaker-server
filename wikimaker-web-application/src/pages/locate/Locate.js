@@ -1,5 +1,5 @@
 import {createUseStyles} from "react-jss";
-import {useNavigate, useSearchParams} from "react-router-dom";
+import {useNavigate, useParams} from "react-router-dom";
 import {useEffect} from "react";
 
 const styles = {
@@ -22,8 +22,8 @@ const useStyle = createUseStyles(styles);
 export default function Locate() {
     useStyle();
 
-    const [searchParams] = useSearchParams();
-    const searchArticle = searchParams.get("article");
+    const params = useParams();
+    const searchArticle = params.name
     const navigate = useNavigate();
 
     useEffect(() => {

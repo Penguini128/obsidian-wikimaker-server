@@ -1,4 +1,0 @@
-#wikimaker 
-#one
-#banana
-#mouse

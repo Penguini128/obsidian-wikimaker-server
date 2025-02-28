@@ -32,7 +32,7 @@ export default function Locate() {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({name: searchArticle + '.md'})
+            body: JSON.stringify({name: searchArticle + '.json'})
         })
         .then((response) => {
             if (response.status === 200) {
@@ -43,7 +43,7 @@ export default function Locate() {
         })
         .then((json) => {
             if (json.path) {
-                const finalPath = json.path.replace(/\.md$/, '')
+                const finalPath = json.path.replace(/\.json$/, '')
                 navigate(`/article/${finalPath}`, {replace:true});
             } else {
                 navigate('/page-not-found', {replace:true});

@@ -1,7 +1,7 @@
 import {createUseStyles} from "react-jss";
 import {useNavigate, useParams} from "react-router-dom";
 import {useEffect, useState} from "react";
-import markdownToHtml from "./MarkdownToHtml";
+import jsonToHtml from "./MarkdownToHtml";
 import {mergeJson} from "../../template/MergeJson";
 import articleStyles from "./ArticleStyles";
 
@@ -28,7 +28,7 @@ async function handleSearch(path) {
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({path: path + '.md'})
+        body: JSON.stringify({path: path + '.json'})
     })
         .then(response => response.status === 200 ? response.blob() : null)
         .then(blob => blob ? blob.text() : null)
@@ -51,7 +51,8 @@ export default function Article() {
                     if (!contents) {
                         navigate('/page-not-found', {replace: true});
                     }
-                    setArticleContents(contents ? markdownToHtml(path, contents) : null)
+                    const json = JSON.parse(contents);
+                    setArticleContents(contents ? jsonToHtml(json) : null)
                 });
         }
     }, [])

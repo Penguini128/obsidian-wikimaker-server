@@ -34,7 +34,7 @@ export default function App() {
 
     return <BrowserRouter history={history}>
         <Routes>
-            <Route key='home' path="/" element={<Home/>}/>
+            <Route key='home' path="/" element={<Navigate to="/article/Home" replace={true} />} />
             <Route key='page-not-found' path="/page-not-found" element={<PageNotFound/>}/>
             <Route key='search' path='/locate/:name' element={<Locate/>}/>
             <Route key='article' path='/article/*' element={<Article/>}/>

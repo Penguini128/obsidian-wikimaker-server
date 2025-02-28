@@ -43,11 +43,11 @@ const articleStyles = {
             fontWeight : '600',
              margin : '1rem 0rem 0rem 0rem'
         },
-        '.newline' : {
+        '.new-line' : {
             margin : 0,
             height : 0
         },
-        '.horizontal-break' : {
+        '.inline-break' : {
             margin : '0.75rem 0rem 1.5rem 0rem',
             borderBottom : '2px solid #333333'
         },
@@ -58,9 +58,11 @@ const articleStyles = {
         '.text' : {
             whiteSpace : 'pre-wrap'
         },
+        '.block-quote-container' : {
+            borderLeft : '2px solid #8B5CF6'
+        },
         '.block-quote' : {
             display : "flex",
-            borderLeft : '2px solid #8B5CF6',
             margin : 0,
             alignItems : 'center',
             boxSizing : 'border-box',
@@ -72,6 +74,7 @@ const articleStyles = {
             padding : "0.15rem 0rem"
         },
         '.block-quote .block-quote' : {
+            borderLeft : '2px solid #8B5CF6',
             height : '100%',
             boxSizing : 'content-box',
             paddingLeft : '1rem'
@@ -104,7 +107,6 @@ const articleStyles = {
             borderRadius : '4px',
             padding : '0.1rem 0.25rem',
             margin : '0.1rem 0rem',
-            fontWeight : 500
         },
         '.code-block' : {
             display : 'block',
@@ -115,7 +117,6 @@ const articleStyles = {
             borderRadius : '4px',
             padding : '1.5rem 1rem',
             width : '100%',
-            fontWeight : 500
         },
         '.table' : {
             borderCollapse : 'collapse',
@@ -142,19 +143,23 @@ const articleStyles = {
             maxWidth : '100%'
         },
         '.hyperlink' : {
-            color : '#a98ee8'
+            color : '#a98ee8',
+            whiteSpace : 'pre-wrap'
         },
         '.hyperlink:hover' : {
-            color : '#d2c0fa'
+            color : '#d2c0fa',
+            whiteSpace : 'pre-wrap'
         },
         '.wikilink' : {
             color : '#a98ee8',
-            textDecoration: 'underline'
+            textDecoration: 'underline',
+            whiteSpace : 'pre-wrap'
         },
         '.wikilink:hover' : {
             color : '#d2c0fa',
             cursor : "pointer",
-            textDecoration: 'underline'
+            textDecoration: 'underline',
+            whiteSpace : 'pre-wrap'
         },
         '.external-link-icon' : {
             display : 'inline-block',

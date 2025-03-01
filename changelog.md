@@ -1,5 +1,8 @@
 # Changelog
 
+## Version 0.2.1 Beta
+- Added togglable debug logs for API server
+
 ## Version 0.2.0 Beta
 
 - Large amount of refactoring

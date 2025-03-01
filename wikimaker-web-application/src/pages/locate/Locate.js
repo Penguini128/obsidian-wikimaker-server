@@ -23,7 +23,7 @@ export default function Locate() {
     useStyle();
 
     const params = useParams();
-    const searchArticle = params.name
+    const   = params.name
     const navigate = useNavigate();
 
     useEffect(() => {

@@ -6,6 +6,7 @@ cp config.json api-server/config.json
 cd api-server
 npm install
 nohup node server.js & :
+:
 
 # Run Python script to convert config.json to .env for frontend server
 cd ../wikimaker-web-application

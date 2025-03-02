@@ -1,3 +1,2 @@
 certbot certonly --standalone [DASH_D_ALL_DOMAINS]
 chmod 755 /etc/letsencrypt/live
-systemctl restart nginx

@@ -1,5 +1,8 @@
 # Changelog
 
+## Version 0.3.0 Beta
+- Finalized beta installation scripts (stil may have issues)
+
 ## Version 0.2.3 Beta
 - Added small start script for when the server has already been installed
 

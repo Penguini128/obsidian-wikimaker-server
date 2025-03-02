@@ -9,7 +9,7 @@ config = json.loads(open('config.json', 'r').read())
 api_domain = config["apiDomain"]
 website_domains = config["websiteDomains"]
 main_domain = website_domains.split(" ")[0]
-full_main_domain = f'https://{main_domain}'
+full_api_domain = f'https://{api_domain}'
 debug = str(config["debug"]).lower()
 port = str(config["port"])
 install_directory = os.getcwd()
@@ -21,7 +21,7 @@ nginx_template = nginx_template.replace("[WEBSITE_DOMAINS]", website_domains)\
     .replace("[API_LOCAL_PORT]", port)\
     .replace("[INSTALL_DIRECTORY]", install_directory)
 
-env_template = env_template.replace('[FULL_MAIN_DOMAIN]', full_main_domain)\
+env_template = env_template.replace('[FULL_API_DOMAIN]', full_api_domain)\
     .replace('[DEBUG_MODE]', debug)
 
 dash_d_all_domains = ''

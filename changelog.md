@@ -1,5 +1,8 @@
 # Changelog
 
+## Version 0.3.1 Beta
+- Fixed bug in install.py and start.py, preventing proper configuration on startup
+
 ## Version 0.3.0 Beta
 - Finalized beta installation scripts (stil may have issues)
 

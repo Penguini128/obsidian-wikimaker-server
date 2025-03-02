@@ -1,7 +1,7 @@
 const express = require('express');
 const fs = require('fs');
 const cors = require('cors');
-const exp = require('constants');
+const parser = require('body-parser')
 
 // Config defaults
 let PORT = '3000'
@@ -53,7 +53,7 @@ ensureFile(FILE_SYNC_RECORD_PATH, '{}')
 
 // Initialize express app
 const app = express();
-app.use(express.json())
+app.use(parser.json({limit:'16mb'}))
 app.use(cors());
 app.use('/image', express.static(WIKI_PUBLISHED_IMAGE_PATH))
 const port = parseInt(PORT);

@@ -1,5 +1,8 @@
 {
     "secret" : "banana123",
     "port" : 3000,
-    "debug" : false
+    "debug" : false,
+    "apiDomain" : "api.example.com", 
+    "websiteDomains" : "example.com www.example.com",
+    "nginxConfigFile" : "example.conf"
 }

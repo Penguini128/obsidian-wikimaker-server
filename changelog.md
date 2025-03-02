@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 0.2.2 Beta
+- Improved installation feature
+- Allowed for larger image upload
+
 ## Version 0.2.1 Beta
 - Added togglable debug logs for API server
 

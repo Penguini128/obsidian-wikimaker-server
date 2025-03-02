@@ -1,5 +1,8 @@
 # Changelog
 
+## Version 0.3.2 Beta
+- Fixed bugs in install templates
+
 ## Version 0.3.1 Beta
 - Fixed bug in install.py and start.py, preventing proper configuration on startup
 

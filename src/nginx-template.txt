@@ -17,6 +17,8 @@ server {
     ssl_certificate /etc/letsencrypt/live/[MAIN_DOMAIN]/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/[MAIN_DOMAIN]/privkey.pem;
 
+    client_max_body_size 16M;
+
     location / {
         proxy_pass http://localhost:[API_LOCAL_PORT];
         proxy_http_version 1.1;

@@ -1,5 +1,8 @@
 # Changelog
 
+## Version 0.3.3 Beta
+- Added ease of use files for local debugging, as well as for stopping the server once started
+
 ## Version 0.3.2 Beta
 - Fixed bugs in install templates
 

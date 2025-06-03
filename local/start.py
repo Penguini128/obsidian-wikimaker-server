@@ -2,7 +2,7 @@ import json
 
 env_template = open('src/env-template.txt', 'r').read().strip()
 
-config = json.loads(open('config.json', 'r').read())
+config = json.loads(open('local/config.json', 'r').read())
 api_domain = config["apiDomain"]
 full_api_domain = f'https://{api_domain}'
 if api_domain[:9] == "localhost":

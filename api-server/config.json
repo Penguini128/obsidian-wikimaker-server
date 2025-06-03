@@ -1,0 +1,8 @@
+{
+    "secret" : "banana12345",
+    "port" : 5001,
+    "debug" : false,
+    "apiDomain" : "localhost:5001",
+    "websiteDomains" : "localhost:3000",
+    "nginxConfigFile" : "example.conf"
+}

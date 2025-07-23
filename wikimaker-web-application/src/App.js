@@ -1,6 +1,5 @@
 import {BrowserRouter, Navigate, Route, Routes} from "react-router-dom";
 import history from "./History";
-import Home from './pages/home/Home';
 import {createUseStyles} from "react-jss";
 import PageNotFound from "./pages/page-not-found/PageNotFound";
 import Locate from "./pages/locate/Locate";

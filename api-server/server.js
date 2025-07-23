@@ -366,7 +366,7 @@ app.post(LOCATE_FILE_ENDPOINT, (req, res) => {
         if (DEBUG_MODE) console.log(`[${LOCATE_FILE_ENDPOINT}] Located file at path "${json[reqContent.name].path}"`)
         res.status(200).json({ path : json[reqContent.name].path }).send()
     } else {
-        if (DEBUG_MODE) console.log(`[${LOCATE_FILE_ENDPOINT}] Could not locate file (file does not exist)`)
+        if (DEBUG_MODE) console.log(`[${LOCATE_FILE_ENDPOINT}] Could not locate file "${reqContent.name}" (file does not exist)`)
         res.status(202).send('File does not exist')
     }
 

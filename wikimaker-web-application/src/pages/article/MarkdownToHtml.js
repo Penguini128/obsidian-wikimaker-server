@@ -1,13 +1,13 @@
-const newStringConsumer = (string) => {
-    return {
-        string : string,
-        startOfLine : true,
-        bold : false,
-        italic : false,
-        strikethrough : false,
-        code : false
-    }
-}
+// const newStringConsumer = (string) => {
+//     return {
+//         string : string,
+//         startOfLine : true,
+//         bold : false,
+//         italic : false,
+//         strikethrough : false,
+//         code : false
+//     }
+// }
 
 export default async function jsonToHtml(json) {
     return objectsToHtml(json)
@@ -82,9 +82,9 @@ function objectsToHtml(parseObjects) {
                     </svg>
             </a>
         case 'image-link' :
-            return <img className={'image'} alt={parseObjects.content.text} src={parseObjects.content.url}/>
+            return <img className={'image'} style={{width: parseObjects.content.width, height: parseObjects.content.height}} alt={parseObjects.content.text} src={parseObjects.content.url}/>
         case 'internal-image':
-            return <img className={'image'} alt={parseObjects.content.path} src={`${process.env.REACT_APP_WIKI_API_PATH}/image/${parseObjects.content.path}`}/>
+            return <img className={'image'} style={{width: parseObjects.content.width, height: parseObjects.content.height}} alt={parseObjects.content.path} src={`${process.env.REACT_APP_WIKI_API_PATH}/image/${parseObjects.content.path}`}/>
         case 'internal-link' :
             return <a className={'wikilink'} href={`/locate/${parseObjects.content.url}`}>{parseObjects.content.text}</a>
         default :
